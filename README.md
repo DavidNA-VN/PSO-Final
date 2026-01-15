@@ -53,17 +53,7 @@ Script sẽ:
 - Power ratio vs performance: ![power-vs-perf](plots/power_vs_perf.png)
 - Min distance vs performance: ![dist-vs-perf](plots/dist_vs_perf.png)
 
-### Ảnh minh hoạ trong thư mục png/
 
-Các ảnh trong [png/](png) (ảnh chụp/ghi lại kết quả khi chạy) đã được include để tham khảo:
-
-- ![png-1](png/92c0aca2-847e-4e38-8dd2-f247ac3cb11f.png)
-- ![png-2](png/dd40365a-b851-43f3-ba01-3ff6f795428c.png)
-- ![png-3](png/Screenshot%202026-01-15%20225735.png)
-- ![png-4](png/Screenshot%202026-01-15%20225744.png)
-- ![png-5](png/Screenshot%202026-01-15%20230826.png)
-- ![png-6](png/Screenshot%202026-01-15%20233215.png)
-- ![png-7](png/Screenshot%202026-01-15%20233225.png)
 
 ### Ghi chú về dữ liệu đầu ra
 
