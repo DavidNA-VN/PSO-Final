@@ -1,31 +1,79 @@
-## Cell-Free ISAC MIMO Systems: Joint Sensing and Communication Beamforming
+## Cell-free ISAC Beamforming (MATLAB)
 
-The implementation for the simulations of the paper "[Cell-Free ISAC MIMO Systems: Joint Sensing and Communication Beamforming](https://arxiv.org/abs/2301.11328)".
+Dự án mô phỏng hệ **cell-free ISAC MIMO** (Integrated Sensing and Communication) với nhiều Access Point (AP) phối hợp vừa phục vụ liên lạc cho các UE vừa “sensing” mục tiêu.
 
-### Reproducing the Results
+Repo này chạy mô phỏng theo luồng trong [run.m](run.m) → [simulation.m](simulation.m), và xuất kết quả ra thư mục [output/](output).
 
-* The simulation parameters can be set in `sim_params.m` file.
+### Nội dung chính trong code
 
-* Set the CVX path in the first line of `run.m` and run the script to generate the simulation results. 
+Trong [simulation.m](simulation.m):
 
-(This step may be skipped since the output data files are pre-generated and already available. If skipped, add the subfolders to the MATLAB path before the next steps. )
+- Sinh hình học (vị trí AP/UE/Target) bằng [utils/generate_positions.m](utils/generate_positions.m)
+- Sinh kênh LOS cho liên lạc bằng [channel/LOS_channel.m](channel/LOS_channel.m)
+- Tạo beam cho sensing theo hướng mục tiêu (beamsteering) và tạo bản **nulling** để giảm nhiễu lên UE
+- Quét theo tỉ lệ công suất cho liên lạc $\rho$ (biến `params.P_comm_ratio`)
+- So sánh các phương án:
+	- **NS+RZF**: Sensing Null-Space + Communication Regularized ZF
+	- **JSC+PSO-LD**: Giữ beam liên lạc cố định (RZF), tối ưu sensing bằng **PSO low-dimension** (tối ưu trọng số phức theo từng AP) trong [optimization/opt_sens_PSO_lowdim.m](optimization/opt_sens_PSO_lowdim.m)
 
-* Run `plots/plot_results_power.m` to regenerate Figure 3 (power ratio vs performance) of the paper.
+Các metric được tính trong [utils/compute_metrics.m](utils/compute_metrics.m):
 
-<img src="plots/power_vs_perf.png" width="600">
+- `min_SINR`: SINR nhỏ nhất trong các UE
+- `SSNR`: sensing SNR của mục tiêu
 
-* Run `plots/plot_results_dist.m` to regenerate Figure 4 (min. distance vs performance) of the paper.
+### Yêu cầu
 
-<img src="plots/dist_vs_perf.png" width="600">
+- MATLAB (khuyến nghị R2021a+)
+- (Tuỳ chọn) Parallel Computing Toolbox: code dùng `parfor` trong [simulation.m](simulation.m)
+- (Tuỳ chọn) CVX: repo có các hàm tối ưu (SOCP/SDP) trong [optimization/](optimization), nhưng **luồng mặc định trong [run.m](run.m) hiện không bắt buộc CVX**. Nếu bạn không có CVX, có thể comment phần addpath CVX trong [run.m](run.m).
 
-### Abstract
+### Cách chạy nhanh
 
-*This paper considers a cell-free integrated sensing and communication (ISAC) MIMO system, where distributed MIMO access points are jointly serving the communication users and sensing the targets. For this setup, we first develop two baseline approaches that separately design the sensing and communication beamforming vectors, namely communicationprioritized sensing beamforming and sensing-prioritized communication beamforming. Then, we consider the joint sensing and communication (JSC) beamforming design and derive the optimal structure of these JSC beamforming vectors based on a max-min fairness formulation. The results show that the developed JSC beamforming is capable of achieving nearly the same communication signal-to-interference-plus-noise ratio (SINR) that of the communication-prioritized sensing beamforming solutions with almost the same sensing SNR of the sensingprioritized communication beamforming approaches, yielding a promising strategy for cell-free ISAC MIMO systems.*
+1) Mở MATLAB tại thư mục gốc của repo.
+
+2) (Tuỳ chọn) chỉnh tham số trong [sim_params.m](sim_params.m):
+
+- `params.N_t`: số antenna mỗi AP
+- `params.M_t`: số AP
+- `params.U`: số UE
+- `params.P_comm_ratio`: danh sách $\rho$ để sweep
+- `params.repetitions`: số lần lặp Monte Carlo
+- `params.geo.*`: thiết lập hình học
+
+3) Chạy script [run.m](run.m).
+
+Script sẽ:
+
+- Chạy mô phỏng theo sweep $\rho$ và lưu [output/power_data.mat](output/power_data.mat)
+- Chạy mô phỏng theo khoảng cách tối thiểu UE–Target và lưu nhiều file `output/dist_data*.mat`
+- Gọi các script plot trong [plots/](plots)
+
+### Kết quả (figures có sẵn)
+
+- Power ratio vs performance: ![power-vs-perf](plots/power_vs_perf.png)
+- Min distance vs performance: ![dist-vs-perf](plots/dist_vs_perf.png)
+
+### Ảnh minh hoạ trong thư mục png/
+
+Các ảnh trong [png/](png) (ảnh chụp/ghi lại kết quả khi chạy) đã được include để tham khảo:
+
+- ![png-1](png/92c0aca2-847e-4e38-8dd2-f247ac3cb11f.png)
+- ![png-2](png/dd40365a-b851-43f3-ba01-3ff6f795428c.png)
+- ![png-3](png/Screenshot%202026-01-15%20225735.png)
+- ![png-4](png/Screenshot%202026-01-15%20225744.png)
+- ![png-5](png/Screenshot%202026-01-15%20230826.png)
+- ![png-6](png/Screenshot%202026-01-15%20233215.png)
+- ![png-7](png/Screenshot%202026-01-15%20233225.png)
+
+### Ghi chú về dữ liệu đầu ra
+
+- Dữ liệu được lưu dạng `results` trong các file `.mat` ở [output/](output)
+- Các script vẽ hình đọc dữ liệu bằng [plots/load_results.m](plots/load_results.m)
+
+### Tham khảo
+
+Mã nguồn/ý tưởng mô phỏng bám theo bài: U. Demirhan và A. Alkhateeb, “Cell-free ISAC MIMO systems: Joint sensing and communication beamforming,” arXiv:2301.11328.
 
 ### License
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This code package is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/). 
-
-If you in any way use this code for research that results in publications, please cite our original article:
-
-> U. Demirhan and A. Alkhateeb, "Cell-free ISAC MIMO systems: Joint sensing and communication beamforming." arXiv preprint arXiv:2301.11328, 2023.
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0): https://creativecommons.org/licenses/by-nc-sa/4.0/
