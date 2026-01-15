@@ -17,7 +17,7 @@ params.sigmasq_ue = 1; % UE receiver noise
 params.sigmasq_radar_rcs = 0.1; % Radar RCS variable 
 params.sigmasq_radar_receiver = 1; % Radar receiver noise
 
-params.repetitions = 1000;
+params.repetitions = 20;
 
 % Geometry setup
 params.geo.line_length = 100;
